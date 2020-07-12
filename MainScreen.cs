@@ -23,6 +23,7 @@ namespace DesktopFileCreator
 
             Grid grid = new Grid();
             this.Add(grid);
+            this.Resizable = false;
 
             Label TypeLabel = new Label("Type:");
             Label VersionLabel = new Label("Version:");
@@ -93,7 +94,7 @@ namespace DesktopFileCreator
             {
                 contents.AppendLine("Icon=" + IconChooser.Filename);
             }
-            if (ExecChooser.Filename != "" && ExecChooser.Filename!= null)
+            if (ExecChooser.Filename != "" && ExecChooser.Filename != null)
             {
                 contents.AppendLine("Exec=" + ExecChooser.Filename);
             }
@@ -132,7 +133,16 @@ namespace DesktopFileCreator
                 }
                 catch (Exception e)
                 {
+                    saveFile.Dispose();
                     Console.WriteLine(e.Message + "\n" + e.StackTrace);
+
+                    // Display Error
+                    MessageDialog msg = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Ok, false, e.Message);
+                    ResponseType response = (ResponseType)msg.Run();
+                    if (response == ResponseType.Ok)
+                    {
+                        msg.Dispose();
+                    }
                 }
             }
             else { saveFile.Dispose(); }
