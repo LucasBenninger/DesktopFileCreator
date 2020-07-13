@@ -138,8 +138,7 @@ namespace DesktopFileCreator
 
                     // Display Error
                     MessageDialog msg = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Ok, false, e.Message);
-                    ResponseType response = (ResponseType)msg.Run();
-                    if (response == ResponseType.Ok)
+                    if (msg.Run() ==(int) ResponseType.Ok)
                     {
                         msg.Dispose();
                     }
