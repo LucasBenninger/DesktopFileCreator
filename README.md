@@ -2,4 +2,4 @@
 
 A simple gui utility for creating .desktop files for linux desktops.
 
-![Desktop File Creator](/images/screenshot.png)
+![Desktop File Creator](/images/Screenshot.png)
