@@ -64,16 +64,19 @@ namespace DesktopFileCreator
             grid.Attach(KeywordsEntry, 1, 8, 1, 1);
             grid.Attach(URLEntry, 1, 9, 1, 1);
 
-            Button SaveButton = new Button("Save");
+            Button SaveButton = new Button("Save To File");
             grid.Attach(SaveButton, 0, 10, 2, 1);
 
             SaveButton.Clicked += new EventHandler(SaveClick);
 
+            Button InstallButton = new Button("Install");
+            grid.Attach(InstallButton, 0, 11, 2, 1);
+            InstallButton.Clicked += new EventHandler(InstallClick);
+
             this.ShowAll();
         }
 
-        private void SaveClick(object obj, EventArgs args)
-        {
+        private string CreateString(){
             StringBuilder contents = new StringBuilder();
             contents.AppendLine("[Desktop Entry]");
             contents.AppendLine("Type=" + values[TypeCombo.Active]);
@@ -118,22 +121,18 @@ namespace DesktopFileCreator
             {
                 contents.AppendLine("URL=" + URLEntry.Text);
             }
-
-            Console.WriteLine(contents.ToString());
-            FileChooserDialog saveFile = new FileChooserDialog("Save File", this, FileChooserAction.Save, "Cancel", ResponseType.Cancel,
-            "Save", ResponseType.Accept);
-            if (saveFile.Run() == (int)ResponseType.Accept)
-            {
-                try
+            return contents.ToString();
+        }
+        
+        private void WriteFile(string contents, string saveFile){
+            try
                 {
-                    System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(saveFile.Filename);
+                    System.IO.StreamWriter streamWriter = new System.IO.StreamWriter(saveFile);
                     streamWriter.Write(contents.ToString());
-                    streamWriter.Close();
-                    saveFile.Dispose();
+                    streamWriter.Close();   
                 }
                 catch (Exception e)
                 {
-                    saveFile.Dispose();
                     Console.WriteLine(e.Message + "\n" + e.StackTrace);
 
                     // Display Error
@@ -143,6 +142,31 @@ namespace DesktopFileCreator
                         msg.Dispose();
                     }
                 }
+        }
+
+        private void InstallClick(object obj, EventArgs args){
+            string contents = CreateString();
+            string path = Environment.GetEnvironmentVariable("HOME") + $"/.local/share/applications/{NameEntry.Text}.desktop";
+            WriteFile(contents, path);
+
+            // Make file executable
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = "/bin/chmod";
+            process.StartInfo.Arguments = "+x " +path;
+            process.Start();
+
+        }
+
+        private void SaveClick(object obj, EventArgs args)
+        {
+            string contents = CreateString();
+            
+            FileChooserDialog saveFile = new FileChooserDialog("Save File", this, FileChooserAction.Save, "Cancel", ResponseType.Cancel,
+            "Save", ResponseType.Accept);
+            if (saveFile.Run() == (int)ResponseType.Accept)
+            {
+                WriteFile(contents, saveFile.Filename);
+                saveFile.Dispose();
             }
             else { saveFile.Dispose(); }
 
